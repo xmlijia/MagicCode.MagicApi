@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>魔码MagicApi</Title>
+    <Authors>李志彬/Zobin Lee</Authors>
+    <Company>李志彬/Zobin Lee</Company>
+    <Description>MagicCode MagicApi is a dynamic webapi middleware for .net core,and it has added SwaggerGen by default.
+use MagicApi,you can focus on logic design without considering how to configure the web api verbs or routes just by inherit the imagiccode to the service class or set the [MagicApi] to the service class
+﻿
+魔码MagicApi是.net core的动态WebApi包，默认已添加SwaggerGen。
+使用魔码MagicApi，你可以关注于逻辑的实现，而无需考虑如何配置Webapi的请求方法、路由模板，所需要做的仅仅是服务继承IMagicApi或者给服务添加MagicApi特性。</Description>
+    <Copyright>Zobin Lee</Copyright>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <FileVersion>1.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MagicCode.MagicSir.Extensions" Version="1.0.3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.0.0" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
