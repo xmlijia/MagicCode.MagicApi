@@ -12,13 +12,14 @@ use MagicApi,you can focus on logic design without considering how to configure 
 魔码MagicApi是.net core的动态WebApi包，默认已添加SwaggerGen。
 使用魔码MagicApi，你可以关注于逻辑的实现，而无需考虑如何配置Webapi的请求方法、路由模板，所需要做的仅仅是服务继承IMagicApi或者给服务添加MagicApi特性。</Description>
     <Copyright>Zobin Lee</Copyright>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeFile></PackageReadmeFile>
     <AssemblyVersion>1.0.0</AssemblyVersion>
     <FileVersion>1.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MagicCode.MagicSir.Extensions" Version="1.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.32" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.0.0" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

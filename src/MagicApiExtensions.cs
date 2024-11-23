@@ -10,24 +10,40 @@ using System.Reflection;
 using MagicCode.MagicApi.Providers;
 using MagicCode.MagicApi.Conventions;
 using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Builder;
 namespace MagicCode.MagicApi
 {
     public static class MagicApiExtensions
     {
         public static IMvcBuilder AddMagicApi(this IMvcBuilder builder)
         {
-            builder.AddMagicApiParts();
+            builder.AddMagicApiParts().AddNewtonsoftJson();
             builder.Services.AddMagicApi();
             return builder;
+        }
+
+        public static IMvcBuilder AddMagicfulResult(this IMvcBuilder mvc)
+        {
+            MagicApi.MagicfulResult = true;
+            return mvc;
+        }
+        public static IMvcCoreBuilder AddMagicfulResult(this IMvcCoreBuilder mvc)
+        {
+            MagicApi.MagicfulResult = true;
+            return mvc;
         }
 
         public static IMvcCoreBuilder AddMagicApi(this IMvcCoreBuilder builder)
         {
-            builder.AddMagicApiParts();
+            builder.AddMagicApiParts().AddNewtonsoftJson();
             builder.Services.AddMagicApi();
             return builder;
         }
-
+        public static IApplicationBuilder UseMagicApi(this IApplicationBuilder builder)
+        {
+            return builder.InitMagicApi();
+        }
     }
 
     public static class MagicApi
@@ -44,7 +60,6 @@ namespace MagicCode.MagicApi
         internal static IMvcBuilder AddMagicApiParts(this IMvcBuilder mvc)
         {
             ConfigureApplicationPartManager(mvc.PartManager);
-
 
 
             return mvc;
@@ -85,5 +100,17 @@ namespace MagicCode.MagicApi
             services.AddSwaggerGen();
             return services;
         }
+
+
+        public static IApplicationBuilder InitMagicApi(this IApplicationBuilder builder)
+        {
+            ServiceProvider = builder.ApplicationServices;
+            return builder;
+        }
+
+        internal static IServiceProvider ServiceProvider { get; set; }
+        internal static HttpContext HttpContext { get { return ServiceProvider.GetRequiredService<IHttpContextAccessor>()?.HttpContext ?? default; } }
+        internal static bool MagicfulResult { get; set; }
     }
+
 }
