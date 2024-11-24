@@ -12,6 +12,9 @@ using MagicCode.MagicApi.Conventions;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.AspNetCore.Mvc.Filters;
+using MagicCode.MagicApi.MagicfulResult;
 namespace MagicCode.MagicApi
 {
     public static class MagicApiExtensions
@@ -25,12 +28,12 @@ namespace MagicCode.MagicApi
 
         public static IMvcBuilder AddMagicfulResult(this IMvcBuilder mvc)
         {
-            MagicApi.MagicfulResult = true;
+            mvc.Services.AddMagicfulResult();
             return mvc;
         }
         public static IMvcCoreBuilder AddMagicfulResult(this IMvcCoreBuilder mvc)
         {
-            MagicApi.MagicfulResult = true;
+            mvc.Services.AddMagicfulResult();
             return mvc;
         }
 
@@ -44,7 +47,16 @@ namespace MagicCode.MagicApi
         {
             return builder.InitMagicApi();
         }
-    }
+        public static IServiceCollection AddMagicfulResult(this IServiceCollection services)
+        {
+
+            MagicApi.MagicfulResult = true;
+            services.AddMvcFilter<MagicfulResultFilter>();
+            services.AddMvcFilter<MagicfulExceptionFilter>(); 
+            MagicApi.Envrionment =   Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environment.GetEnvironmentVariable("ASPNET_ENVIRONMENT") ?? ""; 
+            return services;
+        }
+           }
 
     public static class MagicApi
     {
@@ -96,8 +108,30 @@ namespace MagicCode.MagicApi
             services.Configure<MvcOptions>(o =>
             {
                 o.Conventions.Add(new MagicApiApplicationModelConvention(services));
+
             });
             services.AddSwaggerGen();
+            return services;
+        }
+
+        internal static IServiceCollection AddMvcFilter(this IServiceCollection services, Type filter)
+        {
+            services.Configure<MvcOptions>(o =>
+            {
+                o.Filters.Add(filter);
+            });
+            return services;
+        }
+        internal static IServiceCollection AddMvcFilter<T>(this IServiceCollection services) where T : IFilterMetadata
+        {
+            services.Configure<MvcOptions>(o =>
+            {
+                if (o.Filters.Any(f => f is T) == false)
+                {
+                    o.Filters.Add<T>();
+
+                }
+            });
             return services;
         }
 
@@ -111,6 +145,8 @@ namespace MagicCode.MagicApi
         internal static IServiceProvider ServiceProvider { get; set; }
         internal static HttpContext HttpContext { get { return ServiceProvider.GetRequiredService<IHttpContextAccessor>()?.HttpContext ?? default; } }
         internal static bool MagicfulResult { get; set; }
+        public static string Envrionment { get; internal set; }
+
     }
 
 }

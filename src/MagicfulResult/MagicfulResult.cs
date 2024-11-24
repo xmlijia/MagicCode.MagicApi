@@ -10,6 +10,7 @@ namespace MagicCode.MagicApi
         public T Data { get; set; }
         public bool Succeeded { get; set; }
         public object Extras { get; set; }
+        public int StatusCode {  get; set; }
 
     }
 }

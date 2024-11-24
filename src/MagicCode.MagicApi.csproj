@@ -13,7 +13,7 @@ use MagicApi,you can focus on logic design without considering how to configure 
 使用魔码MagicApi，你可以关注于逻辑的实现，而无需考虑如何配置Webapi的请求方法、路由模板，所需要做的仅仅是服务继承IMagicApi或者给服务添加MagicApi特性。</Description>
     <Copyright>Zobin Lee</Copyright>
     <PackageReadmeFile></PackageReadmeFile>
-    <AssemblyVersion>1.1.0</AssemblyVersion> 
+    <AssemblyVersion>1.2.0</AssemblyVersion> 
   </PropertyGroup>
 
   <ItemGroup>
