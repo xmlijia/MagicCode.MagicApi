@@ -11,5 +11,6 @@ namespace MagicCode.MagicApi.Attributes
             RouteTemplate = routeTemplate;
         }
         public string RouteTemplate { get; set; }
+        public Type TemplateParserProvider { get; set; }
     }
 }

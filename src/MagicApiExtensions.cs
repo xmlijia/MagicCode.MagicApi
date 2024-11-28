@@ -15,6 +15,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Filters;
 using MagicCode.MagicApi.MagicfulResult;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
+using MagicCode.MagicApi.Options;
 namespace MagicCode.MagicApi
 {
     public static class MagicApiExtensions
@@ -43,20 +46,28 @@ namespace MagicCode.MagicApi
             builder.Services.AddMagicApi();
             return builder;
         }
-        public static IApplicationBuilder UseMagicApi(this IApplicationBuilder builder)
+        public static IApplicationBuilder UseMagicApi(this IApplicationBuilder builder,Action<MagicApiOptions>? configureOptions=null)
         {
-            return builder.InitMagicApi();
+            if (configureOptions == null)
+            {
+                configureOptions = o =>
+                {
+                    o.RouteParserProvider = new DefaultMagicApiRouteParserProvider();
+                };
+            }
+
+            return builder.InitMagicApi(configureOptions);
         }
         public static IServiceCollection AddMagicfulResult(this IServiceCollection services)
         {
 
             MagicApi.MagicfulResult = true;
             services.AddMvcFilter<MagicfulResultFilter>();
-            services.AddMvcFilter<MagicfulExceptionFilter>(); 
-            MagicApi.Envrionment =   Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environment.GetEnvironmentVariable("ASPNET_ENVIRONMENT") ?? ""; 
+            services.AddMvcFilter<MagicfulExceptionFilter>();
+            MagicApi.Envrionment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? Environment.GetEnvironmentVariable("ASPNET_ENVIRONMENT") ?? "";
             return services;
         }
-           }
+    }
 
     public static class MagicApi
     {
@@ -105,11 +116,13 @@ namespace MagicCode.MagicApi
 
         internal static IServiceCollection AddMagicApi(this IServiceCollection services)
         {
+            services.AddHttpContextAccessor();
             services.Configure<MvcOptions>(o =>
             {
                 o.Conventions.Add(new MagicApiApplicationModelConvention(services));
 
             });
+            services.AddOptions<MagicApiOptions>();
             services.AddSwaggerGen();
             return services;
         }
@@ -136,16 +149,23 @@ namespace MagicCode.MagicApi
         }
 
 
-        public static IApplicationBuilder InitMagicApi(this IApplicationBuilder builder)
+        internal static IApplicationBuilder InitMagicApi(this IApplicationBuilder builder,Action<MagicApiOptions>? action=default)
         {
-            ServiceProvider = builder.ApplicationServices;
+            ServiceProvider = builder.ApplicationServices; 
+            Configuration = ServiceProvider.GetService<IConfiguration>(); 
+            Options = Configuration?.GetSection("MagicCode:MagicApi").Get<MagicApiOptions>() ?? new MagicApiOptions() ;
+            HttpContextAccessor = ServiceProvider.GetRequiredService<IHttpContextAccessor>() ?? default;
+            action?.Invoke(Options);
             return builder;
         }
 
-        internal static IServiceProvider ServiceProvider { get; set; }
-        internal static HttpContext HttpContext { get { return ServiceProvider.GetRequiredService<IHttpContextAccessor>()?.HttpContext ?? default; } }
+        public static IServiceProvider ServiceProvider { get; internal set; }
+        public static IConfiguration Configuration { get; internal set; }
+        internal static IHttpContextAccessor HttpContextAccessor { get; set; }
+        public static HttpContext HttpContext { get { return HttpContextAccessor.HttpContext; } }
         internal static bool MagicfulResult { get; set; }
         public static string Envrionment { get; internal set; }
+        public static MagicApiOptions Options { get; internal set; }
 
     }
 

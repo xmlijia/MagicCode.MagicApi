@@ -12,8 +12,19 @@ use MagicApi,you can focus on logic design without considering how to configure 
 魔码MagicApi是.net core的动态WebApi包，默认已添加SwaggerGen。
 使用魔码MagicApi，你可以关注于逻辑的实现，而无需考虑如何配置Webapi的请求方法、路由模板，所需要做的仅仅是服务继承IMagicApi或者给服务添加MagicApi特性。</Description>
     <Copyright>Zobin Lee</Copyright>
-    <PackageReadmeFile></PackageReadmeFile>
-    <AssemblyVersion>1.2.0</AssemblyVersion> 
+    <PackageReadmeFile>README.md</PackageReadmeFile> 
+    <Version>1.3.0</Version>
+    <RepositoryUrl>https://gitee.com/binnet/magic-code.-magic-api.git</RepositoryUrl>
+    <PackageOutputPath>E:\开发项目\魔码\魔码服务端\Base\nugetpackages</PackageOutputPath>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile> 
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,10 +36,21 @@ use MagicApi,you can focus on logic design without considering how to configure 
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="新文件夹\" />
   </ItemGroup>
 
 </Project>

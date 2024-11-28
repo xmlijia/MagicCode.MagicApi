@@ -13,14 +13,17 @@ using System.Text.RegularExpressions;
 using MagicCode.MagicSir.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Options;
+using MagicCode.MagicApi.Abstractions;
+using MagicCode.MagicApi.Options;
 namespace MagicCode.MagicApi.Conventions
 {
     public class MagicApiApplicationModelConvention : IApplicationModelConvention
     {
-        IServiceCollection services;
+        IServiceCollection services; 
         public MagicApiApplicationModelConvention(IServiceCollection services)
         {
-            this.services = services;
+            this.services = services; 
         }
 
         public void Apply(ApplicationModel application)
@@ -121,15 +124,15 @@ namespace MagicCode.MagicApi.Conventions
             }
 
         }
-        Dictionary<string, string[]> preWords = new Dictionary<string, string[]>
-        {
-            {"GET",new string[]{"get"} },
-            {"POST",new string[]{ "post", "create", "add", "insert"} } ,
-            {"PUT",new string[]{ "put", "update", "save" } },
-            {"DELETE",new string[]{ "delete", "remove" } },
-            {"PATCH",new string[]{ "patch" } }
+        //Dictionary<string, string[]> preWords = new Dictionary<string, string[]>
+        //{
+        //    {"GET",new string[]{"get"} },
+        //    {"POST",new string[]{ "post", "create", "add", "insert"} } ,
+        //    {"PUT",new string[]{ "put", "update", "save" } },
+        //    {"DELETE",new string[]{ "delete", "remove" } },
+        //    {"PATCH",new string[]{ "patch" } }
 
-        };
+        //};
 
         private string GenerateRouteTemplate(ActionModel action)
         {
@@ -143,14 +146,14 @@ namespace MagicCode.MagicApi.Conventions
             string template = "";
             // 控制器名称部分
 
-            var match = Regex.Match(action.Controller.ControllerName, @"^(?<controllerName>[\w]+)(?:((Application|App)Services?))$", RegexOptions.IgnoreCase);
+            var match = Regex.Match(action.Controller.ControllerName, $"^(?<controllerName>[\\w]+)(?:({string.Join('|', MagicApi.Options.RemoveClassSuffixWords.Distinct())}))$", RegexOptions.IgnoreCase);
 
             var controllerName = match.Success ? match.Groups["controllerName"].Value : action.Controller.ControllerName;
             string actionName = "";
 
 
 
-            if (preWords.Any(i => i.Value.Contains(action.ActionName.ToLower())))
+            if (MagicApi.Options.VerbPreWordMapper.Any(i => i.Value.Contains(action.ActionName.ToLower())))
             {
 
                 actionName = "";
@@ -158,7 +161,7 @@ namespace MagicCode.MagicApi.Conventions
             }
             else
             {
-                var words = from item in preWords
+                var words = from item in MagicApi.Options.VerbPreWordMapper
                             from word in item.Value
                             select word;
 
@@ -168,20 +171,26 @@ namespace MagicCode.MagicApi.Conventions
             }
             if (string.IsNullOrEmpty(actionName))
             {
-                template = controllerName.FromCamelCase("-");
+                template = controllerName ;
             }
             else
             {
 
-                template = $"{controllerName.FromCamelCase("-")}/{actionName.FromCamelCase("-")}";
+                template = $"{controllerName }/{actionName }";
             }
             var parameters = action.Parameters.Where(p => p.Attributes?.Any() == false || p.Attributes.Any(a => a is FromRouteAttribute));
             if (parameters.Any())
             {
-                template = $"{template}/{string.Join('/', parameters.Select(p => $"{{{p.Name.FromCamelCase("-")}}}").Distinct())}";
+                template = $"{template}/{string.Join('/', parameters.Select(p => $"{{{p.Name }}}").Distinct())}";
+            }
+            
+            if (MagicApi.Options?.BaseRoute?.Length > 0)
+            {
+                template= $"{MagicApi.Options.BaseRoute}/{template}";
             }
 
-            return $"api/{template}";
+            
+            return MagicApi.Options.RouteParserProvider.Parse( template);
         }
         public HttpMethodActionConstraint DefineHttpMethod(ActionModel action)
         {
@@ -190,10 +199,10 @@ namespace MagicCode.MagicApi.Conventions
             {
                 return constraint;
             }
-            string method = preWords.FirstOrDefault(p => p.Value.Contains(action.ActionName.ToLower())).Key ?? "";
+            string method = MagicApi.Options.VerbPreWordMapper.FirstOrDefault(p => p.Value.Contains(action.ActionName.ToLower())).Key ?? "";
             if (string.IsNullOrEmpty(method))
             {
-                foreach (var item in preWords)
+                foreach (var item in MagicApi.Options.VerbPreWordMapper)
                 {
                     var match = Regex.Match(action.ActionName, $"^({string.Join('|', item.Value.Distinct())})([\\w]+)$", RegexOptions.IgnoreCase);
                     if (match.Success)
